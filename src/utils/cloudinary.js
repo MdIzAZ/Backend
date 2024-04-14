@@ -3,7 +3,7 @@ import fs from "fs";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_SECRET,
+  api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
 
@@ -13,15 +13,15 @@ const uploadOnCloudinary = async (localFilePath) => {
     //upload
     const response = await cloudinary.uploader.upload(
       localFilePath,
-      {resource_type: auto}
+      {resource_type: "auto"}
     );
     //if success
     console.log("Successfully uploaded to cloudinary", response.url)
+    fs.unlinkSync(localFilePath)// remove from local 
     return response
 
   } catch (error) {
     fs.unlinkSync(localFilePath)// remove from local 
-
   }
 };
 
