@@ -1,7 +1,7 @@
-import { ApiError } from "../utils/apiError";
-import { asyncHandler } from "../utils/asyncHandler";
-import JWT from "jsonwebtoken";
-import { User } from "../models/user.models";
+import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import jwt from "jsonwebtoken";
+import { User } from "../models/user.models.js";
 
 
 export const verifyJWT = asyncHandler(async (req, res, next)=>{
@@ -11,11 +11,11 @@ export const verifyJWT = asyncHandler(async (req, res, next)=>{
     
         if(!token) throw new ApiError(401, "Unaothorize request")
     
-        const decodedToken = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
     
         const user = User.findById(decodedToken?._id).select("-password -refreshToken")
     
-        if (!user) throw new ApiError(401, "invalid access token")
+        if (!user) throw new ApiError(401, "invalid access toen")
     
         //now i can access this user from req. in logout function
         req.user = user
