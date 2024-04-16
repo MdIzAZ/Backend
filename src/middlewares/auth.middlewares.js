@@ -17,8 +17,8 @@ export const verifyJWT = asyncHandler(async (req, res, next)=>{
     
         if (!user) throw new ApiError(401, "invalid access toen")
     
-        //now i can access this user from req. in logout function
         req.user = user
+        //now i can access this user from req. in logout function
         next()
 
     } catch (error) {

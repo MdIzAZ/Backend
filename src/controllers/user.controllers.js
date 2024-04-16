@@ -23,9 +23,6 @@ const generateAccessAndRefreshToken = async (userId) => {
 }
 
 const registerUser = asyncHandler(async(req, res)=>{
-    // res.status(200).json({
-    //     message: "ok izaz"
-    // })
     
     const {fullName, email, username, password} = req.body
     console.log(email)
@@ -94,15 +91,18 @@ const loginUser = asyncHandler(async(req, res)=>{
 
     if(!(username || email)) throw new ApiError(400, "email or username is missing")
 
+    //finding if user is registered
     const user = await User.findOne({
         $or: [{username}, {email}]
     })
 
-    if ( !user ) throw new ApiError(404, "No user exists with this emial or usename")
+    if ( !user ) throw new ApiError(404, "No user exists with this emial or usename, register first")
 
+    //password check 
     const isPasswordValid = await user.isPasswordCorrect(password)
     if ( !isPasswordValid ) throw new ApiError(401, "Incorrect password")
 
+    //token generation
     const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
 
     const loggedInUser = await User.findById(user._id)
@@ -131,6 +131,7 @@ const loginUser = asyncHandler(async(req, res)=>{
 
 
 const logOutUser = asyncHandler(async(req, res)=>{
+    // user is set to req body by middleware ( auth )
     const userId = req.user._id
     await User.findByIdAndUpdate(
         userId,
@@ -175,8 +176,8 @@ const refreshAccessToken = asyncHandler(async(req, res) =>{
     
         const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
         return res.status(200)
-            .cookie("accessToken", accessToken)
-            .cookie("refreshToken", refreshToken)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
             .json(new ApiResponse(
                 200, 
                 {accessToken, refreshToken},
@@ -188,6 +189,9 @@ const refreshAccessToken = asyncHandler(async(req, res) =>{
     }
 
 })
+
+
+
 
 
 export {registerUser, loginUser, logOutUser, refreshAccessToken}
