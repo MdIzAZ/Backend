@@ -135,11 +135,12 @@ const loginUser = asyncHandler(async(req, res)=>{
 const logOutUser = asyncHandler(async(req, res)=>{
     // user is set to req body by middleware ( auth )
     const userId = req.user._id
+    console.log(userId)
     await User.findByIdAndUpdate(
         userId,
         {
-            $set: {
-                refreshToken : undefined
+            $unset: {
+                refreshToken : 1
             }
         },
         {
@@ -166,7 +167,7 @@ const refreshAccessToken = asyncHandler(async(req, res) =>{
     if (!incomingRefreshToken) new ApiError(401, "Unauthorized request")
 
     try {
-        const decodedToken = jwt.verify(incomingRefreshToken, process.env.ACCESS_TOKEN_SECRET)
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
         const user = await User.findById(decodedToken?._id)
         if (!user) new ApiError(401, "Invalid Refresh Token")
         if (incomingRefreshToken !== user?.refreshToken) new ApiError(401, "Refresh Token is expired or used")
@@ -195,7 +196,7 @@ const refreshAccessToken = asyncHandler(async(req, res) =>{
 
 const changeCurrentPassword = asyncHandler(async(req, res)=>{
     const {oldPassword, newPassword} = req.body
-    const user = await User.findById(req.user?._id)
+    const user = await User.findById(req.user._id)
     const isPasswordCorrect =  user.isPasswordCorrect(oldPassword)
     if (!isPasswordCorrect) throw new ApiError(401, "old password is incorrect")
 
@@ -227,6 +228,7 @@ const getCurrentUser = asyncHandler(async(req, res)=>{
 
 const updateAccountDetails = asyncHandler(async(req, res)=>{
     const {fullName, email} = req.body
+    console.log({fullName, email})
     if (!fullName || !email) {
         throw new ApiError(400, "both full name and username is required")
     }
