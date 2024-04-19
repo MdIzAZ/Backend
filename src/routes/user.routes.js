@@ -45,5 +45,7 @@ router.route("/avatar").patch( verifyJWT, upload.single("avatar"), updateUserAva
 router.route("/cover-image").patch( verifyJWT, upload.single("coverImage"), updateUserCoverImage)
 router.route("/c/:username").get(verifyJWT, getUserChannelProfile)
 router.route("/history").get(verifyJWT, getWatchHistory)
-
+router.route("/").get((req, res)=>{
+    res.send(`<h1>hello Backend<h1>`)
+})
 export default router
